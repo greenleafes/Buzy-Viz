@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atmospheric Visualizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cinzel', serif;
+            overflow: hidden;
+            cursor: none;
+            background: linear-gradient(to bottom, #87CEEB, #98D8E8);
+            transition: background 2s ease-in-out;
+        }
+
+        .sky-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            transition: background 2s ease-in-out;
+        }
+
+        .celestial-body {
+            position: absolute;
+            border-radius: 50%;
+            transition: all 2s ease-in-out;
+        }
+
+        .sun {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
+        }
+
+        .moon {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #F5F5DC, #E6E6FA);
+            box-shadow: 0 0 30px rgba(245, 245, 220, 0.4);
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50px;
+            opacity: 0.7;
+            animation: float 60s infinite linear;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50px;
+        }
+
+        .cloud1 {
+            width: 100px;
+            height: 40px;
+            top: 20%;
+            left: -150px;
+        }
+
+        .cloud1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud1::after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 10px;
+        }
+
+        .cloud2 {
+            width: 80px;
+            height: 30px;
+            top: 30%;
+            left: -120px;
+            animation-delay: -20s;
+        }
+
+        .cloud2::before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 15px;
+        }
+
+        .cloud2::after {
+            width: 50px;
+            height: 30px;
+            top: -10px;
+            right: 15px;
+        }
+
+        .cloud3 {
+            width: 120px;
+            height: 50px;
+            top: 15%;
+            left: -180px;
+            animation-delay: -40s;
+        }
+
+        .cloud3::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 20px;
+        }
+
+        .cloud3::after {
+            width: 70px;
+            height: 50px;
+            top: -20px;
+            right: 20px;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(calc(100vw + 200px));
+            }
+        }
+
+        .bird {
+            position: absolute;
+            width: 24px;
+            height: 12px;
+            animation: fly 45s infinite linear;
+            opacity: 0.6;
+        }
+
+        .bird::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 2px;
+            width: 16px;
+            height: 8px;
+            background: #333;
+            border-radius: 50% 80% 20% 50%;
+            transform: rotate(-15deg);
+        }
+
+        .bird::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 2px;
+            width: 16px;
+            height: 8px;
+            background: #333;
+            border-radius: 80% 50% 50% 20%;
+            transform: rotate(15deg);
+        }
+
+        .bird-body {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 6px;
+            background: #333;
+            border-radius: 50%;
+        }
+
+        .bird1 {
+            top: 25%;
+            left: -30px;
+            animation-delay: -10s;
+        }
+
+        .bird2 {
+            top: 18%;
+            left: -30px;
+            animation-delay: -25s;
+        }
+
+        .bird3 {
+            top: 35%;
+            left: -30px;
+            animation-delay: -35s;
+        }
+
+        @keyframes fly {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(calc(100vw + 50px));
+            }
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.3;
+                transform: scale(1);
+                filter: hue-rotate(0deg) brightness(1);
+            }
+            14% {
+                opacity: 1;
+                transform: scale(1.2);
+                filter: hue-rotate(60deg) brightness(1.2);
+            }
+            28% {
+                opacity: 0.8;
+                transform: scale(1.5);
+                filter: hue-rotate(120deg) brightness(1.4);
+            }
+            42% {
+                opacity: 1;
+                transform: scale(1.3);
+                filter: hue-rotate(180deg) brightness(1.1);
+            }
+            57% {
+                opacity: 0.9;
+                transform: scale(1.4);
+                filter: hue-rotate(240deg) brightness(1.3);
+            }
+            71% {
+                opacity: 1;
+                transform: scale(1.2);
+                filter: hue-rotate(300deg) brightness(1.5);
+            }
+            85% {
+                opacity: 0.7;
+                transform: scale(1.6);
+                filter: hue-rotate(340deg) brightness(1.2);
+            }
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+                filter: hue-rotate(360deg) brightness(1);
+            }
+        }
+
+        .clock-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            color: white;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .time {
+            font-family: 'UnifrakturMaguntia', cursive;
+            font-size: 8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+        }
+
+        .date {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+        }
+
+        .news-ticker-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.7));
+            display: flex;
+            align-items: center;
+            z-index: 20;
+            overflow: hidden;
+        }
+
+        .news-ticker {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: white;
+            white-space: nowrap;
+            animation: scroll 180s linear infinite;
+            padding-left: 100%;
+        }
+
+        @keyframes scroll {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-100%);
+            }
+        }
+
+        @media (max-width: 1280px) {
+            .time {
+                font-size: 6rem;
+            }
+            .date {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .time {
+                font-size: 4rem;
+            }
+            .date {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sky-container" id="sky">
+        <div class="celestial-body sun" id="sun"></div>
+        <div class="celestial-body moon" id="moon"></div>
+
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+
+        <div class="bird bird1">
+            <div class="bird-body"></div>
+        </div>
+        <div class="bird bird2">
+            <div class="bird-body"></div>
+        </div>
+        <div class="bird bird3">
+            <div class="bird-body"></div>
+        </div>
+
+        <div class="stars" id="stars"></div>
+    </div>
+
+    <div class="clock-container">
+        <div class="time" id="time">00:00</div>
+        <div class="date" id="date">Loading...</div>
+    </div>
+
+    <div class="news-ticker-container">
+        <div class="news-ticker" id="newsTicker">Loading news headlines...</div>
+    </div>
+
+    <script>
+        // Time and date functionality
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            document.getElementById('time').textContent = timeString;
+            document.getElementById('date').textContent = dateString;
+        }
+
+        // Sky color transitions based on time
+        function updateSky() {
+            const now = new Date();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const totalMinutes = hour * 60 + minute;
+
+            const sky = document.getElementById('sky');
+            const sun = document.getElementById('sun');
+            const moon = document.getElementById('moon');
+            const stars = document.getElementById('stars');
+            const body = document.body;
+
+            let skyGradient;
+            let isNight = false;
+
+            // Calculate sun and moon positions
+            const sunProgress = Math.max(0, Math.min(1, (totalMinutes - 360) / (1200 - 360))); // 6 AM to 8 PM
+            const moonProgress = totalMinutes < 720 ?
+                (totalMinutes + 720) / 1440 :
+                (totalMinutes - 720) / 1440;
+
+            // Position celestial bodies
+            const sunX = sunProgress * (window.innerWidth - 80);
+            const sunY = Math.sin(sunProgress * Math.PI) * (window.innerHeight * 0.4) + window.innerHeight * 0.1;
+
+            const moonX = moonProgress * (window.innerWidth - 60);
+            const moonY = Math.sin(moonProgress * Math.PI) * (window.innerHeight * 0.4) + window.innerHeight * 0.15;
+
+            sun.style.left = sunX + 'px';
+            sun.style.top = sunY + 'px';
+            moon.style.left = moonX + 'px';
+            moon.style.top = moonY + 'px';
+
+            // Sky colors based on time
+            if (totalMinutes >= 300 && totalMinutes < 420) { // 5:00-7:00 AM - Dawn
+                skyGradient = 'linear-gradient(to bottom, #FF6B6B, #FFE66D, #87CEEB)';
+            } else if (totalMinutes >= 420 && totalMinutes < 600) { // 7:00-10:00 AM - Morning
+                skyGradient = 'linear-gradient(to bottom, #87CEEB, #98D8E8, #B8E6B8)';
+            } else if (totalMinutes >= 600 && totalMinutes < 840) { // 10:00 AM-2:00 PM - Noon
+                skyGradient = 'linear-gradient(to bottom, #87CEEB, #87CEEB, #98D8E8)';
+            } else if (totalMinutes >= 840 && totalMinutes < 1020) { // 2:00-5:00 PM - Afternoon
+                skyGradient = 'linear-gradient(to bottom, #98D8E8, #FFE66D, #FFA500)';
+            } else if (totalMinutes >= 1020 && totalMinutes < 1140) { // 5:00-7:00 PM - Dusk
+                skyGradient = 'linear-gradient(to bottom, #FF6B6B, #8B5A96, #2C1810)';
+            } else if (totalMinutes >= 1140 && totalMinutes < 1320) { // 7:00-10:00 PM - Evening
+                skyGradient = 'linear-gradient(to bottom, #2C1810, #1A1A2E, #16213E)';
+                isNight = true;
+            } else { // 10:00 PM-5:00 AM - Night
+                skyGradient = 'linear-gradient(to bottom, #0F0F23, #16213E, #1A1A2E)';
+                isNight = true;
+            }
+
+            sky.style.background = skyGradient;
+            body.style.background = skyGradient;
+
+            // Show/hide atmospheric elements
+            const clouds = document.querySelectorAll('.cloud');
+            const birds = document.querySelectorAll('.bird');
+
+            if (isNight) {
+                stars.style.opacity = '1';
+                clouds.forEach(cloud => cloud.style.opacity = '0');
+                birds.forEach(bird => bird.style.opacity = '0');
+                sun.style.opacity = '0.3';
+                moon.style.opacity = '1';
+            } else {
+                stars.style.opacity = '0';
+                clouds.forEach(cloud => cloud.style.opacity = '0.7');
+                birds.forEach(bird => bird.style.opacity = '0.6');
+                sun.style.opacity = '1';
+                moon.style.opacity = '0.3';
+            }
+        }
+
+        // Generate stars
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            const numStars = 100;
+
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 80 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (2 + Math.random() * 3) + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // News ticker functionality
+        let newsCache = [];
+        let tickerCycleCount = 0;
+
+        async function fetchNews() {
+            const corsProxy = 'https://api.allorigins.win/raw?url=';
+            const feeds = [
+                // Major US News
+                'https://rss.cnn.com/rss/edition.rss',
+                'https://feeds.npr.org/1001/rss.xml',
+                'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
+                'https://feeds.reuters.com/reuters/topNews',
+                'https://feeds.foxnews.com/foxnews/latest',
+                'https://feeds.washingtonpost.com/rss/world',
+                'https://feeds.bbci.co.uk/news/world/rss.xml',
+                'https://feeds.abcnews.com/abcnews/topstories',
+                'https://feeds.nbcnews.com/nbcnews/public/news',
+                'https://feeds.cbsnews.com/CBSNewsMain',
+
+                // Tech & Business
+                'https://feeds.feedburner.com/TechCrunch',
+                'https://feeds.arstechnica.com/arstechnica/index',
+                'https://rssfeeds.usatoday.com/usatoday-newstopstories',
+                'https://feeds.bloomberg.com/markets/news.rss',
+                'https://feeds.fortune.com/fortune/headlines',
+                'https://feeds.feedburner.com/time/topstories',
+
+                // International
+                'https://feeds.guardian.co.uk/theguardian/world/rss',
+                'https://feeds.skynews.com/feeds/rss/world.xml',
+                'https://feeds.reuters.com/Reuters/worldNews',
+                'https://rss.dw.com/rdf/rss-en-all',
+
+                // Science & Health
+                'https://feeds.nationalgeographic.com/ng/News/News_Main',
+                'https://rss.cnn.com/rss/cnn_health.rss',
+                'https://feeds.feedburner.com/sciam/mind-and-brain',
+
+                // Sports & Entertainment
+                'https://feeds.espn.com/espn/rss/news',
+                'https://rss.cnn.com/rss/cnn_showbiz.rss',
+                'https://feeds.hollywoodreporter.com/hollywoodreporter/news',
+
+                // Alternative sources
+                'https://feeds.feedburner.com/breitbart',
+                'https://feeds.feedburner.com/TheHuffingtonPost',
+                'https://feeds.feedburner.com/politico',
+                'https://rss.politico.com/politics-news.xml'
+            ];
+
+            const headlines = [];
+            const maxPerFeed = 8;
+
+            for (const feed of feeds) {
+                try {
+                    const response = await fetch(corsProxy + encodeURIComponent(feed));
+                    const text = await response.text();
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(text, 'text/xml');
+                    const items = xmlDoc.getElementsByTagName('item');
+
+                    for (let i = 0; i < Math.min(maxPerFeed, items.length); i++) {
+                        const title = items[i].getElementsByTagName('title')[0]?.textContent;
+                        if (title && title.length > 10 && title.length < 200) {
+                            headlines.push(title.trim());
+                        }
+                    }
+                } catch (error) {
+                    console.log('Error fetching from feed:', error);
+                }
+            }
+
+            if (headlines.length === 0) {
+                headlines.push(
+                    'Welcome to your Steam Deck Atmospheric Visualizer',
+                    'News feeds are currently unavailable - please check your internet connection',
+                    'Enjoy the peaceful ambiance and beautiful dynamic clock display',
+                    'Sky colors and atmospheric elements change throughout the day',
+                    'Stars twinkle in rainbow colors during nighttime hours'
+                );
+            } else {
+                // Shuffle headlines for variety
+                for (let i = headlines.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [headlines[i], headlines[j]] = [headlines[j], headlines[i]];
+                }
+            }
+
+            newsCache = headlines;
+            updateNewsTicker();
+        }
+
+        function updateNewsTicker() {
+            const ticker = document.getElementById('newsTicker');
+            const newsText = newsCache.join(' • ') + ' • ';
+            ticker.textContent = newsText;
+        }
+
+        // Monitor ticker animation end to refresh news
+        function setupTickerRefresh() {
+            const ticker = document.getElementById('newsTicker');
+            ticker.addEventListener('animationiteration', () => {
+                tickerCycleCount++;
+                if (tickerCycleCount >= 3) { // Refresh after every 3 cycles
+                    tickerCycleCount = 0;
+                    fetchNews();
+                }
+            });
+        }
+
+        // Initialize everything
+        function init() {
+            generateStars();
+            updateTime();
+            updateSky();
+            fetchNews();
+            setupTickerRefresh();
+
+            // Update time every second
+            setInterval(updateTime, 1000);
+
+            // Update sky every minute
+            setInterval(updateSky, 60000);
+
+            // Backup news refresh every 15 minutes
+            setInterval(fetchNews, 900000);
+        }
+
+        // Start when page loads
+        window.addEventListener('load', init);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            updateSky();
+        });
+
+        // Prevent context menu and text selection
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('selectstart', e => e.preventDefault());
+    </script>
+</body>
+</html>
